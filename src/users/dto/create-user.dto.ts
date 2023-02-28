@@ -1,5 +1,4 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
-import { IsDecimal } from 'class-validator/types/decorator/decorators';
+import { IsEmail, IsNotEmpty, IsDecimal } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()

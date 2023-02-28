@@ -13,12 +13,15 @@ type Address = {
 @Injectable()
 export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = User.create(createUserDto);
     const address = await this.generateAddress(createUserDto);
+    const user = new User();
+    user.name = createUserDto.name;
+    user.email = createUserDto.email;
+    user.password = createUserDto.password;
     user.city = address.city;
     user.state = address.state;
 
-    if (address.country == 'United States') {
+    if (address.country == ' USA') {
       return await user.save();
     }
   }
@@ -43,5 +46,15 @@ export class UsersService {
     };
 
     return address;
+  }
+
+  //function to find a user by id
+  async findOne(id: number): Promise<User> {
+    return await User.findOneBy({ id: id });
+  }
+
+  //function to find a user by email
+  async findOneByEmail(email: string): Promise<User> {
+    return await User.findOneBy({ email: email });
   }
 }
