@@ -36,7 +36,11 @@ describe('UsersService', () => {
     };
 
     it('should create a new user and return it', async () => {
-      const mockAddress = { city: 'San Francisco', state: 'CA', country: 'United States' };
+      const mockAddress = {
+        city: 'San Francisco',
+        state: 'CA',
+        country: 'United States',
+      };
       const mockUser = new User();
       mockUser.name = mockCreateUserDto.name;
       mockUser.email = mockCreateUserDto.email;
@@ -59,7 +63,9 @@ describe('UsersService', () => {
 
       jest.spyOn(service, 'generateAddress').mockResolvedValue(mockAddress);
 
-      await expect(service.create(mockCreateUserDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create(mockCreateUserDto)).rejects.toThrow(
+        BadRequestException,
+      );
       expect(service.generateAddress).toHaveBeenCalledWith(mockCreateUserDto);
     });
 
@@ -67,7 +73,9 @@ describe('UsersService', () => {
       const mockError = new Error('Error');
       jest.spyOn(service, 'generateAddress').mockRejectedValue(mockError);
 
-      await expect(service.create(mockCreateUserDto)).rejects.toThrow(HttpException);
+      await expect(service.create(mockCreateUserDto)).rejects.toThrow(
+        HttpException,
+      );
       expect(service.generateAddress).toHaveBeenCalledWith(mockCreateUserDto);
     });
   });
@@ -86,8 +94,14 @@ describe('UsersService', () => {
         {
           address_components: [
             { long_name: 'San Francisco', types: ['locality', 'political'] },
-            { long_name: 'San Francisco County', types: ['administrative_area_level_2', 'political'] },
-            { long_name: 'California', types: ['administrative_area_level_1', 'political'] },
+            {
+              long_name: 'San Francisco County',
+              types: ['administrative_area_level_2', 'political'],
+            },
+            {
+              long_name: 'California',
+              types: ['administrative_area_level_1', 'political'],
+            },
             { long_name: 'United States', types: ['country', 'political'] },
           ],
           formatted_address: 'San Francisco, CA, USA',
@@ -96,5 +110,23 @@ describe('UsersService', () => {
       status: 'OK',
     };
 
-    it('should generate an address and return it')
+    it('should generate an address and return it', async () => {
+      const mockAddress = {
+        city: 'San Francisco',
+        state: 'CA',
+        country: 'United States',
+      };
 
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        json: () => Promise.resolve(mockAddressResponse),
+      });
+
+      const result = await service.generateAddress(mockCreateUserDto);
+
+      expect(result).toEqual(mockAddress);
+      expect(fetch).toHaveBeenCalledWith(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${mockCreateUserDto.latitude},${mockCreateUserDto.longitude}&key=${process.env.GOOGLE_MAPS_API_KEY}`,
+      );
+    });
+  });
+});

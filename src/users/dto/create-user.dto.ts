@@ -6,7 +6,6 @@ export class CreateUserDto {
 
   @IsEmail()
   @IsNotEmpty()
-  @TurnIntoLowerCase()
   email: string;
 
   @IsNotEmpty()
