@@ -6,6 +6,7 @@ export class CreateUserDto {
 
   @IsEmail()
   @IsNotEmpty()
+  @TurnIntoLowerCase()
   email: string;
 
   @IsNotEmpty()
@@ -18,4 +19,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsDecimal()
   longitude: number;
+}
+function TurnIntoLowerCase() {
+  throw new Error('Function not implemented.');
 }
