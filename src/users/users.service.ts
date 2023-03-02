@@ -10,13 +10,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import fetch from 'node-fetch';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ApiTags } from '@nestjs/swagger';
 
 type Address = {
   city: string;
   state: string;
   country: string;
 };
-
+@ApiTags('users')
 @Injectable()
 export class UsersService {
   constructor(
@@ -24,6 +25,16 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
+  /**
+   * Creates a new user based on provided data.
+   *
+   * @param {CreateUserDto} createUserDto The DTO containing user data
+   *
+   * @throws {BadRequestException} If the user's address is not within the US
+   * @throws {HttpException} If an error occurs while creating the user
+   *
+   * @return {Promise<User>} The created user object
+   */
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const address = await this.generateAddress(createUserDto);
@@ -56,7 +67,15 @@ export class UsersService {
     }
   }
 
-  //function to generate the address from the lat and long coordinates using geocoding api
+  /**
+   * Generates an address based on provided latitude and longitude coordinates.
+   *
+   * @param {CreateUserDto} createUserDto The DTO containing user data, including latitude and longitude
+   *
+   * @throws {InternalServerErrorException} If an error occurs while generating the address
+   *
+   * @return {Promise<Address>} The generated address object
+   */
   async generateAddress(createUserDto: CreateUserDto): Promise<Address> {
     const lat = createUserDto.latitude;
     const long = createUserDto.longitude;
@@ -112,7 +131,15 @@ export class UsersService {
     }
   }
 
-  //function to find a user by id
+  /**
+   * Finds a user by their ID.
+   *
+   * @param {number} id The ID of the user to find
+   *
+   * @throws {InternalServerErrorException} If an error occurs while finding the user
+   *
+   * @return {Promise<User>} The found user object
+   */
   async findOne(id: number): Promise<User> {
     try {
       const user = await this.userRepository.findOneBy({ id: id });
@@ -123,7 +150,15 @@ export class UsersService {
     }
   }
 
-  //function to find a user by email
+  /**
+   * Finds a user by their email address.
+   *
+   * @param {string} email The email address of the user to find
+   *
+   * @throws {InternalServerErrorException} If an error occurs while finding the user
+   *
+   * @return {Promise<User>} The found user object
+   */
   async findOneByEmail(email: string): Promise<User> {
     try {
       return await User.findOneBy({ email: email });
@@ -133,6 +168,14 @@ export class UsersService {
     }
   }
 
+  /**
+   * Finds an address component based on its type.
+   *
+   * @param {any[]} components The array of address components to search through
+   * @param {string} type The type of component to find
+   *
+   * @return {string|undefined} The long name of the found component, or undefined if not found
+   */
   private findAddressComponent(
     components: any[],
     type: string,
