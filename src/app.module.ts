@@ -10,7 +10,11 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     UsersModule,
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+      expandVariables: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DATABASE_HOST,

@@ -11,6 +11,7 @@ import fetch from 'node-fetch';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ApiTags } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
 
 type Address = {
   city: string;
@@ -80,7 +81,9 @@ export class UsersService {
     const lat = createUserDto.latitude;
     const long = createUserDto.longitude;
 
-    const apiKey = 'AIzaSyCeOojflkGYUdY4F027pL9xTOKO5-OlCUo';
+    //use dotenv to get the API key from the .env file
+    dotenv.config();
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       throw new Error('Google Maps API key is missing');
     }
