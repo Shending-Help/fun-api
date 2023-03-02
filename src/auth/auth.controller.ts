@@ -5,6 +5,7 @@ import {
   ApiTags,
   ApiOkResponse,
   ApiUnauthorizedResponse,
+  ApiOperation,
 } from '@nestjs/swagger';
 
 @ApiTags('auth')
@@ -20,6 +21,7 @@ export class AuthController {
    * @returns Object containing the access token on successful authentication
    * @throws UnauthorizedException If the user's credentials are invalid
    */
+  @ApiOperation({ summary: 'Authenticate a user' })
   @ApiOkResponse({
     description: 'Authentication successful',
     schema: {

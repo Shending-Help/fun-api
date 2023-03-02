@@ -17,6 +17,7 @@ import {
   ApiBody,
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
@@ -32,6 +33,7 @@ export class UsersController {
    * @throws InternalServerErrorException If an error occurs while creating the user
    * @returns Newly created user object
    */
+  @ApiOperation({ summary: 'Create a new user' })
   @ApiCreatedResponse({
     description: 'The user has been successfully created.',
     type: User,
@@ -61,6 +63,7 @@ export class UsersController {
     type: User,
   })
   @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiOperation({ summary: 'Find a user by ID' })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {

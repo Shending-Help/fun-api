@@ -19,7 +19,9 @@ export class AuthService {
    * @returns The user object if successful
    */
   async validateUser(loginUserDto: LoginUserDto) {
-    const user = await this.usersService.findOneByEmail(loginUserDto.email);
+    const user = await this.usersService.findOneByEmail(
+      loginUserDto.email.toLowerCase(),
+    );
 
     if (!(await user?.comparePassword(loginUserDto.password))) {
       throw new UnauthorizedException();

@@ -41,7 +41,7 @@ export class UsersService {
       const address = await this.generateAddress(createUserDto);
       const user = new User();
       user.name = createUserDto.name;
-      user.email = createUserDto.email;
+      user.email = createUserDto.email.toLowerCase();
       user.password = createUserDto.password;
       user.city = address.city;
       user.state = address.state;
