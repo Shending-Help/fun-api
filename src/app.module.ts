@@ -4,10 +4,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Entity } from 'typeorm';
+import { DataSource, Entity } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
-
-const entities = [];
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -20,7 +19,7 @@ const entities = [];
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: entities,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -29,4 +28,6 @@ const entities = [];
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}

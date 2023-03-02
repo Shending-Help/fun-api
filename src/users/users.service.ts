@@ -1,12 +1,15 @@
 import {
   BadRequestException,
   HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import fetch from 'node-fetch';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 type Address = {
   city: string;
@@ -16,6 +19,11 @@ type Address = {
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
       const address = await this.generateAddress(createUserDto);
@@ -27,21 +35,24 @@ export class UsersService {
       user.state = address.state;
 
       if (address.country == 'United States') {
-        await user.save();
+        await this.userRepository.save(user);
         delete user.password;
         return user;
       } else {
         throw new BadRequestException("User's address must be within the US");
       }
     } catch (error) {
-      throw new HttpException(
-        {
-          status: error.status,
-          error: error.message,
-        },
-        error.status,
-        { cause: error },
-      );
+      if (error.message === "User's address must be within the US") {
+        throw new BadRequestException(error.message);
+      } else {
+        throw new HttpException(
+          {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            error: 'An error occurred while creating the user.',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -50,7 +61,7 @@ export class UsersService {
     const lat = createUserDto.latitude;
     const long = createUserDto.longitude;
 
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const apiKey = 'AIzaSyCeOojflkGYUdY4F027pL9xTOKO5-OlCUo';
     if (!apiKey) {
       throw new Error('Google Maps API key is missing');
     }
@@ -59,6 +70,7 @@ export class UsersService {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${apiKey}`;
       const response = await fetch(url);
       const data = await response.json();
+      console.log(data);
 
       if (data.status !== 'OK') {
         throw new InternalServerErrorException('Failed to retrieve address');
@@ -93,6 +105,7 @@ export class UsersService {
 
       return address;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         `Failed to generate address: ${error.message}`,
       );
@@ -102,7 +115,7 @@ export class UsersService {
   //function to find a user by id
   async findOne(id: number): Promise<User> {
     try {
-      const user = await User.findOneBy({ id: id });
+      const user = await this.userRepository.findOneBy({ id: id });
       delete user.password;
       return user;
     } catch (error) {
@@ -115,6 +128,7 @@ export class UsersService {
     try {
       return await User.findOneBy({ email: email });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException('Failed to find user');
     }
   }
