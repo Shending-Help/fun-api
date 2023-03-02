@@ -19,6 +19,3 @@ export class CreateUserDto {
   @IsDecimal()
   longitude: number;
 }
-function TurnIntoLowerCase() {
-  throw new Error('Function not implemented.');
-}
